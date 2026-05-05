@@ -1,0 +1,25 @@
+node_modules
+.next
+out
+coverage
+.env
+.env*
+!.env.example
+data/*.json
+data/*.tmp
+data/*.corrupt
+tsconfig.tsbuildinfo
+npm-debug.log*
+__pycache__/
+*.py[cod]
+
+# OMX runtime/session state is local-only. Keep durable planning artifacts.
+.omx/*
+!.omx/context/
+!.omx/context/**
+!.omx/interviews/
+!.omx/interviews/**
+!.omx/plans/
+!.omx/plans/**
+!.omx/specs/
+!.omx/specs/**

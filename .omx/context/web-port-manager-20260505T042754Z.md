@@ -1,0 +1,27 @@
+# Deep Interview Context Snapshot: web-port-manager
+
+- Task statement: 用户希望构建一个 Web，用来管理当前服务器的 Port。
+- Desired outcome: 在浏览器中显示当前服务器正在使用的端口以及相关功能，并可能提供端口管理能力。
+- Stated solution: Web 管理界面 / dashboard。
+- Probable intent hypothesis: 用户希望快速了解服务器端口占用、对应服务/进程/用途，并在安全边界内做管理操作。
+- Known facts/evidence:
+  - 当前工作目录：`/home/chlience/myport`。
+  - 目录当前几乎为空，仅发现 `.omx` 运行状态/日志；未发现 `package.json`、README、框架配置或已有 Web/server 代码。
+  - 因此初步按 greenfield 处理。
+- Constraints:
+  - Deep-interview 阶段不直接实现。
+  - 当前 Codex 表面不在 tmux 中，不能使用 OMX tmux 弹窗提问；每轮问一个纯文本问题。
+  - 端口管理会涉及本机进程信息、权限、安全边界，后续必须明确允许哪些操作。
+- Unknowns/open questions:
+  - 真实使用场景：只查看端口，还是需要停止/重启/释放/备注/告警等管理动作？
+  - “相关功能”具体指什么：进程名、PID、协议、本地/外网监听、服务名、Docker/container、反向代理、用途备注、历史记录等。
+  - 目标用户、部署方式、认证要求、权限范围。
+  - 技术栈偏好与运行环境。
+  - 验收标准。
+- Decision-boundary unknowns:
+  - OMX 是否可自行选择技术栈。
+  - OMX 是否可设计需要 root/sudo 的能力，或第一版必须非特权只读。
+  - OMX 是否可加入认证、数据库、后台采集任务、systemd/Docker 集成。
+- Likely codebase touchpoints:
+  - Greenfield: 后续可能新增前端、后端、端口扫描/进程采集模块、权限/认证模块、部署脚本。
+- Prompt-safe initial-context summary status: not_needed
