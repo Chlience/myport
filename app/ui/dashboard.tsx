@@ -232,6 +232,79 @@ export function Dashboard() {
         </div>
       ) : null}
 
+      <section className="panel" aria-labelledby="registry-title">
+        <div className="panel-header">
+          <div>
+            <h2 id="registry-title">{d.registry}</h2>
+          </div>
+        </div>
+        {loading ? (
+          <p className="muted">{d.loadingRecords}</p>
+        ) : records.length === 0 ? (
+          <p className="muted">{d.emptyRecords}</p>
+        ) : (
+          <div className="table-wrap registry-table-scroll" tabIndex={0} aria-label={d.savedPortsTable}>
+            <table>
+              <thead>
+                <tr>
+                  <th>{d.service}</th>
+                  <SortableHeader
+                    field="port"
+                    label={d.port}
+                    sort={registrySort}
+                    ascendingLabel={d.sortAscending}
+                    descendingLabel={d.sortDescending}
+                    sortByLabel={d.sortBy}
+                    onSort={changeRegistrySort}
+                  />
+                  <th>{d.endpoint}</th>
+                  <th>{d.description}</th>
+                  <SortableHeader
+                    field="createdAt"
+                    label={d.createdAt}
+                    sort={registrySort}
+                    ascendingLabel={d.sortAscending}
+                    descendingLabel={d.sortDescending}
+                    sortByLabel={d.sortBy}
+                    onSort={changeRegistrySort}
+                  />
+                  <th>{d.status}</th>
+                  <th>{d.actions}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedRegistryRows.map(({ record, status }) => (
+                  <tr key={record.id}>
+                    <td>
+                      <strong>{record.serviceName}</strong>
+                    </td>
+                    <td className="mono">{record.port}</td>
+                    <td className="mono">
+                      {record.protocol}/{record.host}
+                    </td>
+                    <td>{record.description || <span className="muted">{d.noDescription}</span>}</td>
+                    <td className="created-cell">{formatCreatedAt(record.createdAt)}</td>
+                    <td>
+                      <StatusBadge labels={copy.statuses} status={status} />
+                    </td>
+                    <td>
+                      <div className="button-row">
+                        <button className="btn btn-secondary" onClick={() => editRecord(record)} type="button">
+                          {d.edit}
+                        </button>
+                        <button className="btn btn-danger" onClick={() => deleteRecord(record.id)} type="button">
+                          {d.delete}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
       <section className="content-grid">
         <article className="panel" aria-labelledby="record-form-title">
           <div className="panel-header">
@@ -354,78 +427,6 @@ export function Dashboard() {
         </article>
       </section>
 
-      <section className="panel" aria-labelledby="registry-title">
-        <div className="panel-header">
-          <div>
-            <h2 id="registry-title">{d.registry}</h2>
-          </div>
-        </div>
-        {loading ? (
-          <p className="muted">{d.loadingRecords}</p>
-        ) : records.length === 0 ? (
-          <p className="muted">{d.emptyRecords}</p>
-        ) : (
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>{d.service}</th>
-                  <SortableHeader
-                    field="port"
-                    label={d.port}
-                    sort={registrySort}
-                    ascendingLabel={d.sortAscending}
-                    descendingLabel={d.sortDescending}
-                    sortByLabel={d.sortBy}
-                    onSort={changeRegistrySort}
-                  />
-                  <th>{d.endpoint}</th>
-                  <th>{d.description}</th>
-                  <SortableHeader
-                    field="createdAt"
-                    label={d.createdAt}
-                    sort={registrySort}
-                    ascendingLabel={d.sortAscending}
-                    descendingLabel={d.sortDescending}
-                    sortByLabel={d.sortBy}
-                    onSort={changeRegistrySort}
-                  />
-                  <th>{d.status}</th>
-                  <th>{d.actions}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedRegistryRows.map(({ record, status }) => (
-                  <tr key={record.id}>
-                    <td>
-                      <strong>{record.serviceName}</strong>
-                    </td>
-                    <td className="mono">{record.port}</td>
-                    <td className="mono">
-                      {record.protocol}/{record.host}
-                    </td>
-                    <td>{record.description || <span className="muted">{d.noDescription}</span>}</td>
-                    <td className="created-cell">{formatCreatedAt(record.createdAt)}</td>
-                    <td>
-                      <StatusBadge labels={copy.statuses} status={status} />
-                    </td>
-                    <td>
-                      <div className="button-row">
-                        <button className="btn btn-secondary" onClick={() => editRecord(record)} type="button">
-                          {d.edit}
-                        </button>
-                        <button className="btn btn-danger" onClick={() => deleteRecord(record.id)} type="button">
-                          {d.delete}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
     </>
   );
 }

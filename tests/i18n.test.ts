@@ -21,6 +21,7 @@ describe("i18n", () => {
 
   it("provides Chinese copy for primary dashboard actions", () => {
     expect(translations.zh.dashboard.scanCurrent).toBe("扫描当前端口");
+    expect(translations.zh.dashboard.registry).toBe("已保存端口");
     expect(translations.zh.dashboard.scanComplete(2)).toBe("扫描完成：发现 2 条监听端口记录。");
     expect(translations.zh.statuses.not_running).toBe("未运行");
   });

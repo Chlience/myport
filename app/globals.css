@@ -290,6 +290,25 @@ a:focus-visible {
   overflow-x: auto;
 }
 
+.registry-table-scroll {
+  max-height: min(55vh, 34rem);
+  overflow: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+}
+
+.registry-table-scroll table {
+  min-width: 920px;
+}
+
+.registry-table-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
