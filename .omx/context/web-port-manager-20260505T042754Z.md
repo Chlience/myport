@@ -1,4 +1,4 @@
-# Deep Interview Context Snapshot: web-port-manager
+# Deep Interview Context Snapshot: MyPort
 
 - Task statement: 用户希望构建一个 Web，用来管理当前服务器的 Port。
 - Desired outcome: 在浏览器中显示当前服务器正在使用的端口以及相关功能，并可能提供端口管理能力。

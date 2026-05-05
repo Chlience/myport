@@ -1,4 +1,4 @@
-# PRD: Web Port Manager
+# PRD: MyPort
 
 ## Status
 
@@ -143,7 +143,7 @@ Disposition:
 
 ## UX Requirements
 
-The requested UI/UX skill is available as project-local `ui-ux-pro-max` at `.codex/skills/ui-ux-pro-max`. It was status-checked on 2026-05-05: Python is available, the search CLI help runs, and a design-system smoke query for “Web Port Manager” succeeds. Use this skill for the frontend UX pass.
+The requested UI/UX skill is available as project-local `ui-ux-pro-max` at `.codex/skills/ui-ux-pro-max`. It was status-checked on 2026-05-05: Python is available, the search CLI help runs, and a design-system smoke query for “MyPort” succeeds. Use this skill for the frontend UX pass.
 
 Required UX outcomes:
 - Responsive dashboard layout.
@@ -404,7 +404,7 @@ Every protected API must reject direct unauthenticated requests.
 ### Step 7 — UX pass
 
 - Use `.codex/skills/ui-ux-pro-max/SKILL.md`.
-- Start with a design-system query for the Web Port Manager dashboard, then apply the recommendations selectively to this admin UI.
+- Start with a design-system query for the MyPort dashboard, then apply the recommendations selectively to this admin UI.
 - Improve status badges, layout, empty/loading/error states, import confirmation, responsive behavior, accessible labels.
 
 ### Step 8 — Documentation
@@ -466,7 +466,7 @@ Manual smoke:
 
 ### Decision
 
-Build Web Port Manager as a **Next.js App Router + TypeScript** app with **atomic JSON local persistence**, single-account env-based authentication, HMAC-signed cookie sessions, server-side route guards, read-only `ss` scan adapter, and no service lifecycle mutation.
+Build MyPort as a **Next.js App Router + TypeScript** app with **atomic JSON local persistence**, single-account env-based authentication, HMAC-signed cookie sessions, server-side route guards, read-only `ss` scan adapter, and no service lifecycle mutation.
 
 ### Drivers
 

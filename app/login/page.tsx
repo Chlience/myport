@@ -15,7 +15,7 @@ export default async function LoginPage() {
     <main id="main-content" className="login-page">
       <section className="login-card" aria-labelledby="login-title">
         <p className="eyebrow">Secure access</p>
-        <h1 id="login-title">Web Port Manager</h1>
+        <h1 id="login-title">MyPort</h1>
         <p>Sign in with the single account configured by environment variables.</p>
         <LoginForm />
       </section>

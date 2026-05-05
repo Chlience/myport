@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Web Port Manager",
+  title: "MyPort",
   description: "Metadata-only dashboard for current server service ports."
 };
 

@@ -179,7 +179,7 @@ export function Dashboard() {
       <header className="hero">
         <div>
           <p className="eyebrow">Metadata-only server inventory</p>
-          <h1>Web Port Manager</h1>
+          <h1>MyPort</h1>
           <p>
             Maintain your own service-port registry, scan current listeners, and import findings without
             changing any running service.

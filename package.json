@@ -1,5 +1,5 @@
 {
-  "name": "web-port-manager",
+  "name": "myport",
   "version": "0.1.0",
   "private": true,
   "description": "Authenticated metadata-only Web manager for current server ports.",

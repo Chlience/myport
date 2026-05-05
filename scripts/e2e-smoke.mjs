@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 
 const root = process.cwd();
-const tempDir = await mkdtemp(path.join(os.tmpdir(), "web-port-manager-e2e-"));
+const tempDir = await mkdtemp(path.join(os.tmpdir(), "myport-e2e-"));
 const port = 4123 + Math.floor(Math.random() * 1000);
 const baseUrl = `http://127.0.0.1:${port}`;
 const dataPath = path.join(tempDir, "ports.json");
@@ -105,7 +105,7 @@ try {
 
   const appPage = await fetch(`${baseUrl}/`, { headers: { Cookie: cookie } });
   const html = await appPage.text();
-  assert(appPage.ok && html.includes("Web Port Manager"), "authenticated app page renders");
+  assert(appPage.ok && html.includes("MyPort"), "authenticated app page renders");
 
   console.log("E2E smoke passed");
 } finally {
