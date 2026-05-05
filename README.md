@@ -94,6 +94,25 @@ npm run build
 npm run start -- -p 3000
 ```
 
+Or use the local helper scripts for a background process with daily logs.
+`start-myport.sh` runs `npm run build` before starting, and `restart-myport.sh` builds before stopping the current process:
+
+```bash
+./start-myport.sh
+./restart-myport.sh
+./log-myport.sh
+./stop-myport.sh
+```
+
+The helper scripts default to port `9000` and write logs to `logs/myport-YYYY-MM-DD.log`.
+Override the port when needed:
+
+```bash
+MYPORT_PORT=9001 ./start-myport.sh
+MYPORT_PORT=9001 ./restart-myport.sh
+MYPORT_PORT=9001 ./stop-myport.sh
+```
+
 For public access, put MyPort behind your own reverse proxy and terminate TLS there.
 
 Recommended production env adjustment:

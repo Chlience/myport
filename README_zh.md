@@ -94,6 +94,25 @@ npm run build
 npm run start -- -p 3000
 ```
 
+也可以使用本地辅助脚本在后台启动，并按日期写入日志。
+`start-myport.sh` 会在启动前执行 `npm run build`，`restart-myport.sh` 会先构建成功再停止当前进程：
+
+```bash
+./start-myport.sh
+./restart-myport.sh
+./log-myport.sh
+./stop-myport.sh
+```
+
+辅助脚本默认使用端口 `9000`，日志写入 `logs/myport-YYYY-MM-DD.log`。
+如需修改端口：
+
+```bash
+MYPORT_PORT=9001 ./start-myport.sh
+MYPORT_PORT=9001 ./restart-myport.sh
+MYPORT_PORT=9001 ./stop-myport.sh
+```
+
 如果要外网访问，请将 MyPort 放到你自己的反向代理后面，并在反向代理层处理 HTTPS/TLS。
 
 生产环境建议设置：
