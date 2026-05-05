@@ -314,6 +314,35 @@ tr:hover td {
   background: #f8fafc;
 }
 
+.sort-header-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 800;
+  letter-spacing: inherit;
+  padding: 0;
+  text-align: left;
+  text-transform: inherit;
+}
+
+.sort-header-button:hover {
+  color: var(--primary);
+}
+
+.sort-indicator {
+  color: var(--primary);
+  font-family: "Fira Code", monospace;
+  font-size: 0.82rem;
+}
+
+.created-cell {
+  white-space: nowrap;
+}
+
 .mono {
   font-family: "Fira Code", monospace;
 }

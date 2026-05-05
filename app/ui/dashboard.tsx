@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { DEFAULT_REGISTRY_SORT, nextSortDirection, sortRegistryRows, type RegistrySort, type RegistrySortField } from "@/src/ports/sort";
 import type { PortRecord, RegistryStatusRow, ScanStatusRow } from "@/src/ports/types";
 import { apiErrorMessage, readJson } from "./api-client";
 import { useLanguage, type StatusKey, type StatusLabels } from "./i18n";
@@ -35,6 +36,7 @@ export function Dashboard() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
+  const [registrySort, setRegistrySort] = useState<RegistrySort>(DEFAULT_REGISTRY_SORT);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,12 +49,36 @@ export function Dashboard() {
     return records.map((record) => ({ record, status: "not_running" as const }));
   }, [records, scan]);
 
+  const sortedRegistryRows = useMemo(() => sortRegistryRows(registryRows, registrySort), [registryRows, registrySort]);
+
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(language === "zh" ? "zh-CN" : "en-US", {
+        dateStyle: "medium",
+        timeStyle: "short"
+      }),
+    [language]
+  );
+
   const stats = useMemo(() => {
     const active = registryRows.filter((row) => row.status === "active").length;
     const conflict = registryRows.filter((row) => row.status === "conflict").length;
     const unregistered = scan?.scanResults.filter((row) => row.status === "unregistered").length ?? 0;
     return { total: records.length, active, conflict, unregistered };
   }, [records.length, registryRows, scan]);
+
+  function changeRegistrySort(field: RegistrySortField) {
+    setRegistrySort((current) => ({
+      field,
+      direction: current.field === field ? nextSortDirection(current.direction) : field === "createdAt" ? "desc" : "asc"
+    }));
+  }
+
+  function formatCreatedAt(value: string) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return d.unknown;
+    return dateFormatter.format(date);
+  }
 
   async function loadRecords() {
     setLoading(true);
@@ -344,22 +370,42 @@ export function Dashboard() {
               <thead>
                 <tr>
                   <th>{d.service}</th>
+                  <SortableHeader
+                    field="port"
+                    label={d.port}
+                    sort={registrySort}
+                    ascendingLabel={d.sortAscending}
+                    descendingLabel={d.sortDescending}
+                    sortByLabel={d.sortBy}
+                    onSort={changeRegistrySort}
+                  />
                   <th>{d.endpoint}</th>
                   <th>{d.description}</th>
+                  <SortableHeader
+                    field="createdAt"
+                    label={d.createdAt}
+                    sort={registrySort}
+                    ascendingLabel={d.sortAscending}
+                    descendingLabel={d.sortDescending}
+                    sortByLabel={d.sortBy}
+                    onSort={changeRegistrySort}
+                  />
                   <th>{d.status}</th>
                   <th>{d.actions}</th>
                 </tr>
               </thead>
               <tbody>
-                {registryRows.map(({ record, status }) => (
+                {sortedRegistryRows.map(({ record, status }) => (
                   <tr key={record.id}>
                     <td>
                       <strong>{record.serviceName}</strong>
                     </td>
+                    <td className="mono">{record.port}</td>
                     <td className="mono">
-                      {record.protocol}/{record.host}:{record.port}
+                      {record.protocol}/{record.host}
                     </td>
                     <td>{record.description || <span className="muted">{d.noDescription}</span>}</td>
+                    <td className="created-cell">{formatCreatedAt(record.createdAt)}</td>
                     <td>
                       <StatusBadge labels={copy.statuses} status={status} />
                     </td>
@@ -381,6 +427,40 @@ export function Dashboard() {
         )}
       </section>
     </>
+  );
+}
+
+function SortableHeader({
+  ascendingLabel,
+  descendingLabel,
+  field,
+  label,
+  onSort,
+  sort,
+  sortByLabel
+}: {
+  ascendingLabel: string;
+  descendingLabel: string;
+  field: RegistrySortField;
+  label: string;
+  onSort: (field: RegistrySortField) => void;
+  sort: RegistrySort;
+  sortByLabel: (label: string, direction: string) => string;
+}) {
+  const active = sort.field === field;
+  const direction = active ? sort.direction : undefined;
+  const nextDirection = active ? nextSortDirection(sort.direction) : field === "createdAt" ? "desc" : "asc";
+  const nextDirectionLabel = nextDirection === "asc" ? ascendingLabel : descendingLabel;
+
+  return (
+    <th aria-sort={active ? (direction === "asc" ? "ascending" : "descending") : "none"}>
+      <button className="sort-header-button" onClick={() => onSort(field)} type="button" aria-label={sortByLabel(label, nextDirectionLabel)}>
+        <span>{label}</span>
+        <span className="sort-indicator" aria-hidden="true">
+          {active ? (direction === "asc" ? "↑" : "↓") : "↕"}
+        </span>
+      </button>
+    </th>
   );
 }
 
