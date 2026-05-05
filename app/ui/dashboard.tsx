@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import type { PortRecord, RegistryStatusRow, ScanStatusRow } from "@/src/ports/types";
 import { apiErrorMessage, readJson } from "./api-client";
+import { useLanguage, type StatusKey, type StatusLabels } from "./i18n";
 
 type ScanPayload = {
   scanResults: ScanStatusRow[];
@@ -26,14 +27,9 @@ const emptyForm: FormState = {
   description: ""
 };
 
-const statusLabels = {
-  active: "Active",
-  unregistered: "Unregistered",
-  not_running: "Not running",
-  conflict: "Conflict"
-} as const;
-
 export function Dashboard() {
+  const { copy, language } = useLanguage();
+  const d = copy.dashboard;
   const [records, setRecords] = useState<PortRecord[]>([]);
   const [scan, setScan] = useState<ScanPayload | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -64,7 +60,7 @@ export function Dashboard() {
     const payload = await readJson(response);
     setLoading(false);
     if (!response.ok) {
-      setError(apiErrorMessage(payload, "Could not load records."));
+      setError(apiErrorMessage(payload, d.loadFailed));
       return;
     }
     setRecords((payload as { records: PortRecord[] }).records);
@@ -78,12 +74,12 @@ export function Dashboard() {
     const payload = await readJson(response);
     setScanning(false);
     if (!response.ok) {
-      setError(apiErrorMessage(payload, "Scan failed."));
+      setError(apiErrorMessage(payload, d.scanFailed));
       return;
     }
     const scanPayload = payload as ScanPayload;
     setScan(scanPayload);
-    setMessage(`Scan complete: ${scanPayload.scanResults.length} listening port entries found.`);
+    setMessage(d.scanComplete(scanPayload.scanResults.length));
   }
 
   async function saveRecord(event: FormEvent<HTMLFormElement>) {
@@ -104,11 +100,11 @@ export function Dashboard() {
     });
     const payload = await readJson(response);
     if (!response.ok) {
-      setError(apiErrorMessage(payload, "Could not save record."));
+      setError(apiErrorMessage(payload, d.saveFailed));
       return;
     }
     setForm(emptyForm);
-    setMessage(form.id ? "Record updated." : "Record created.");
+    setMessage(form.id ? d.recordUpdated : d.recordCreated);
     await loadRecords();
     if (scan) await runScan();
   }
@@ -118,10 +114,10 @@ export function Dashboard() {
     setMessage(null);
     const response = await fetch(`/api/records/${id}`, { method: "DELETE" });
     if (!response.ok) {
-      setError(apiErrorMessage(await readJson(response), "Could not delete record."));
+      setError(apiErrorMessage(await readJson(response), d.deleteFailed));
       return;
     }
-    setMessage("Record deleted.");
+    setMessage(d.recordDeleted);
     await loadRecords();
     if (scan) await runScan();
   }
@@ -129,21 +125,22 @@ export function Dashboard() {
   async function importScan(row: ScanStatusRow) {
     setError(null);
     setMessage(null);
+    const locale = language === "zh" ? "zh-CN" : "en-US";
     const response = await fetch("/api/import", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         result: row.result,
-        serviceName: row.result.processName ?? `Port ${row.result.port}`,
-        description: `Imported from current scan on ${new Date().toLocaleString()}`
+        serviceName: row.result.processName ?? d.importedService(row.result.port),
+        description: d.importedDescription(new Date().toLocaleString(locale))
       })
     });
     const payload = await readJson(response);
     if (!response.ok) {
-      setError(apiErrorMessage(payload, "Could not import scanned port."));
+      setError(apiErrorMessage(payload, d.importFailed));
       return;
     }
-    setMessage("Scanned port imported into registry.");
+    setMessage(d.imported);
     const imported = (payload as { record: PortRecord }).record;
     setForm({
       id: imported.id,
@@ -178,28 +175,24 @@ export function Dashboard() {
     <>
       <header className="hero">
         <div>
-          <p className="eyebrow">Metadata-only server inventory</p>
           <h1>MyPort</h1>
-          <p>
-            Maintain your own service-port registry, scan current listeners, and import findings without
-            changing any running service.
-          </p>
+          <p>{d.intro}</p>
         </div>
         <div className="hero-actions">
           <button className="btn btn-primary" onClick={runScan} disabled={scanning} type="button">
-            {scanning ? "Scanning..." : "Scan current ports"}
+            {scanning ? d.scanning : d.scanCurrent}
           </button>
           <button className="btn btn-secondary" onClick={logout} type="button">
-            Logout
+            {d.logout}
           </button>
         </div>
       </header>
 
-      <section className="stats-grid" aria-label="Port registry summary">
-        <Stat label="Saved records" value={stats.total} />
-        <Stat label="Active after scan" value={stats.active} />
-        <Stat label="Unregistered scan" value={stats.unregistered} />
-        <Stat label="Conflicts" value={stats.conflict} />
+      <section className="stats-grid" aria-label={d.summaryLabel}>
+        <Stat label={d.stats.total} value={stats.total} />
+        <Stat label={d.stats.active} value={stats.active} />
+        <Stat label={d.stats.unregistered} value={stats.unregistered} />
+        <Stat label={d.stats.conflict} value={stats.conflict} />
       </section>
 
       {message ? (
@@ -217,18 +210,17 @@ export function Dashboard() {
         <article className="panel" aria-labelledby="record-form-title">
           <div className="panel-header">
             <div>
-              <p className="eyebrow">Manual source of truth</p>
-              <h2 id="record-form-title">{form.id ? "Edit service record" : "Add service record"}</h2>
+              <h2 id="record-form-title">{form.id ? d.editRecord : d.addRecord}</h2>
             </div>
             {form.id ? (
               <button className="btn btn-secondary" onClick={() => setForm(emptyForm)} type="button">
-                Cancel edit
+                {d.cancelEdit}
               </button>
             ) : null}
           </div>
           <form className="form-grid" onSubmit={saveRecord}>
             <div className="field">
-              <label htmlFor="serviceName">Service name</label>
+              <label htmlFor="serviceName">{d.serviceName}</label>
               <input
                 id="serviceName"
                 value={form.serviceName}
@@ -237,7 +229,7 @@ export function Dashboard() {
               />
             </div>
             <div className="field">
-              <label htmlFor="port">Port</label>
+              <label htmlFor="port">{d.port}</label>
               <input
                 id="port"
                 type="number"
@@ -249,7 +241,7 @@ export function Dashboard() {
               />
             </div>
             <div className="field">
-              <label htmlFor="protocol">Protocol</label>
+              <label htmlFor="protocol">{d.protocol}</label>
               <select
                 id="protocol"
                 value={form.protocol}
@@ -260,7 +252,7 @@ export function Dashboard() {
               </select>
             </div>
             <div className="field">
-              <label htmlFor="host">Host</label>
+              <label htmlFor="host">{d.host}</label>
               <input
                 id="host"
                 value={form.host}
@@ -269,7 +261,7 @@ export function Dashboard() {
               />
             </div>
             <div className="field full">
-              <label htmlFor="description">Description</label>
+              <label htmlFor="description">{d.description}</label>
               <textarea
                 id="description"
                 value={form.description}
@@ -278,7 +270,7 @@ export function Dashboard() {
             </div>
             <div className="field full">
               <button className="btn btn-primary" type="submit">
-                {form.id ? "Save changes" : "Create record"}
+                {form.id ? d.saveChanges : d.createRecord}
               </button>
             </div>
           </form>
@@ -287,26 +279,25 @@ export function Dashboard() {
         <article className="panel" aria-labelledby="scan-title">
           <div className="panel-header">
             <div>
-              <p className="eyebrow">Read-only comparison</p>
-              <h2 id="scan-title">Current scan</h2>
+              <h2 id="scan-title">{d.currentScan}</h2>
             </div>
             <button className="btn btn-secondary" onClick={runScan} disabled={scanning} type="button">
-              Refresh scan
+              {d.refreshScan}
             </button>
           </div>
           {!scan ? (
-            <p className="muted">Run a scan to compare listening ports with the manual registry.</p>
+            <p className="muted">{d.noScan}</p>
           ) : scan.scanResults.length === 0 ? (
-            <p className="muted">No listening ports were returned by the scan adapter.</p>
+            <p className="muted">{d.noScanResults}</p>
           ) : (
             <div className="table-wrap">
               <table>
                 <thead>
                   <tr>
-                    <th>Port</th>
-                    <th>Process</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th>{d.port}</th>
+                    <th>{d.process}</th>
+                    <th>{d.status}</th>
+                    <th>{d.action}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -315,17 +306,17 @@ export function Dashboard() {
                       <td className="mono">
                         {row.result.protocol}/{row.result.host}:{row.result.port}
                       </td>
-                      <td>{row.result.processName ?? "Unknown"}</td>
+                      <td>{row.result.processName ?? d.unknown}</td>
                       <td>
-                        <StatusBadge status={row.status} />
+                        <StatusBadge labels={copy.statuses} status={row.status} />
                       </td>
                       <td>
                         {row.status === "unregistered" ? (
                           <button className="btn btn-secondary" onClick={() => importScan(row)} type="button">
-                            Import
+                            {d.import}
                           </button>
                         ) : (
-                          <span className="muted">Registered</span>
+                          <span className="muted">{d.registered}</span>
                         )}
                       </td>
                     </tr>
@@ -340,24 +331,23 @@ export function Dashboard() {
       <section className="panel" aria-labelledby="registry-title">
         <div className="panel-header">
           <div>
-            <p className="eyebrow">Saved records</p>
-            <h2 id="registry-title">Registry</h2>
+            <h2 id="registry-title">{d.registry}</h2>
           </div>
         </div>
         {loading ? (
-          <p className="muted">Loading records...</p>
+          <p className="muted">{d.loadingRecords}</p>
         ) : records.length === 0 ? (
-          <p className="muted">No saved records yet. Add a service record or import from a scan.</p>
+          <p className="muted">{d.emptyRecords}</p>
         ) : (
           <div className="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>Service</th>
-                  <th>Endpoint</th>
-                  <th>Description</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                  <th>{d.service}</th>
+                  <th>{d.endpoint}</th>
+                  <th>{d.description}</th>
+                  <th>{d.status}</th>
+                  <th>{d.actions}</th>
                 </tr>
               </thead>
               <tbody>
@@ -369,17 +359,17 @@ export function Dashboard() {
                     <td className="mono">
                       {record.protocol}/{record.host}:{record.port}
                     </td>
-                    <td>{record.description || <span className="muted">No description</span>}</td>
+                    <td>{record.description || <span className="muted">{d.noDescription}</span>}</td>
                     <td>
-                      <StatusBadge status={status} />
+                      <StatusBadge labels={copy.statuses} status={status} />
                     </td>
                     <td>
                       <div className="button-row">
                         <button className="btn btn-secondary" onClick={() => editRecord(record)} type="button">
-                          Edit
+                          {d.edit}
                         </button>
                         <button className="btn btn-danger" onClick={() => deleteRecord(record.id)} type="button">
-                          Delete
+                          {d.delete}
                         </button>
                       </div>
                     </td>
@@ -403,6 +393,6 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
-function StatusBadge({ status }: { status: keyof typeof statusLabels }) {
-  return <span className={`badge badge-${status}`}>{statusLabels[status]}</span>;
+function StatusBadge({ labels, status }: { labels: StatusLabels; status: StatusKey }) {
+  return <span className={`badge badge-${status}`}>{labels[status]}</span>;
 }

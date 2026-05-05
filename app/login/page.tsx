@@ -1,6 +1,7 @@
 import { currentSessionStatus } from "@/src/auth/require-auth";
 import { redirect } from "next/navigation";
-import { LoginForm } from "../ui/login-form";
+import { LanguageSelect } from "../ui/i18n";
+import { LoginPanel } from "../ui/login-panel";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -13,12 +14,12 @@ export default async function LoginPage() {
 
   return (
     <main id="main-content" className="login-page">
-      <section className="login-card" aria-labelledby="login-title">
-        <p className="eyebrow">Secure access</p>
-        <h1 id="login-title">MyPort</h1>
-        <p>Sign in with the single account configured by environment variables.</p>
-        <LoginForm />
-      </section>
+      <div className="login-stack">
+        <div className="top-language-control">
+          <LanguageSelect />
+        </div>
+        <LoginPanel />
+      </div>
     </main>
   );
 }

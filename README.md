@@ -26,6 +26,7 @@ MyPort is designed for one trusted server operator. It can scan currently listen
 ## Features
 
 - **Single-account login** using server-side environment variables.
+- **English/Chinese language selector** with a browser-local language preference.
 - **Manual port registry** for service name, port, protocol, host, and description.
 - **Read-only current-port scan** using a fixed `ss -ltnup` adapter.
 - **Status labels** for:

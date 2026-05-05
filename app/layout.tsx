@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { LanguageProvider } from "./ui/i18n";
+import { SkipLink } from "./ui/skip-link";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -10,10 +12,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <a className="skip-link" href="#main-content">
-          Skip to main content
-        </a>
-        {children}
+        <LanguageProvider>
+          <SkipLink />
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );

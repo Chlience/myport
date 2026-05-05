@@ -2,8 +2,10 @@
 
 import { FormEvent, useState } from "react";
 import { apiErrorMessage, readJson } from "./api-client";
+import { useLanguage } from "./i18n";
 
 export function LoginForm() {
+  const { copy } = useLanguage();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -22,7 +24,7 @@ export function LoginForm() {
     });
     setLoading(false);
     if (!response.ok) {
-      setError(apiErrorMessage(await readJson(response), "Login failed."));
+      setError(apiErrorMessage(await readJson(response), copy.login.failed));
       return;
     }
     window.location.assign("/");
@@ -31,11 +33,11 @@ export function LoginForm() {
   return (
     <form className="form-grid" onSubmit={onSubmit}>
       <div className="field full">
-        <label htmlFor="username">Username</label>
+        <label htmlFor="username">{copy.login.username}</label>
         <input id="username" name="username" autoComplete="username" required />
       </div>
       <div className="field full">
-        <label htmlFor="password">Password</label>
+        <label htmlFor="password">{copy.login.password}</label>
         <input id="password" name="password" type="password" autoComplete="current-password" required />
       </div>
       {error ? (
@@ -45,7 +47,7 @@ export function LoginForm() {
       ) : null}
       <div className="field full">
         <button className="btn btn-primary" disabled={loading} type="submit">
-          {loading ? "Signing in..." : "Sign in"}
+          {loading ? copy.login.loading : copy.login.submit}
         </button>
       </div>
     </form>
